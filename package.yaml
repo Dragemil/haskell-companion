@@ -21,6 +21,11 @@ description:         Please see the README on GitHub at <https://github.com/Drag
 
 dependencies:
 - base >= 4.7 && < 5
+- discord-haskell
+- hoogle
+- feed
+- http-conduit
+- scheduler
 
 library:
   source-dirs: src

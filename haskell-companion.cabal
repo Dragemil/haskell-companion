@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.31.2.
+-- This file has been generated from package.yaml by hpack version 0.33.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 35291b996d52abe1dcb47bf56b21ff488bcaab46c1f9d301cc8d94cbe9619439
+-- hash: 223dab6632b8a9a4ad97d8cef75bc8cb63f294762f599ff54df7a75d307f3364
 
 name:           haskell-companion
 version:        0.1.0.0
@@ -34,6 +34,11 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , discord-haskell
+    , feed
+    , hoogle
+    , http-conduit
+    , scheduler
   default-language: Haskell2010
 
 executable haskell-companion-exe
@@ -45,7 +50,12 @@ executable haskell-companion-exe
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , discord-haskell
+    , feed
     , haskell-companion
+    , hoogle
+    , http-conduit
+    , scheduler
   default-language: Haskell2010
 
 test-suite haskell-companion-test
@@ -58,5 +68,10 @@ test-suite haskell-companion-test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , discord-haskell
+    , feed
     , haskell-companion
+    , hoogle
+    , http-conduit
+    , scheduler
   default-language: Haskell2010
