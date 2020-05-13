@@ -1,53 +1,41 @@
-name:                haskell-companion
-version:             0.1.0.0
-github:              "Dragemil/haskell-companion"
-license:             BSD3
-author:              "Emil Dragańczuk"
-maintainer:          "dragemil@wp.pl"
-copyright:           "2020 Emil Dragańczuk"
-
-extra-source-files:
-- README.md
-- ChangeLog.md
-
-# Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
-
-# To avoid duplicated efforts in documentation and dealing with the
-# complications of embedding Haddock markup inside cabal files, it is
-# common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/Dragemil/haskell-companion#readme>
-
+library:
+  source-dirs: src
+tests:
+  haskell-companion-test:
+    source-dirs: test
+    main: Spec.hs
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - haskell-companion
+copyright: 2020 Emil Dragańczuk
+maintainer: dragemil@wp.pl
 dependencies:
+- text
 - base >= 4.7 && < 5
 - discord-haskell
 - hoogle
 - feed
 - http-conduit
 - scheduler
-
-library:
-  source-dirs: src
-
+name: haskell-companion
+version: 0.1.0.0
+extra-source-files:
+- README.md
+- ChangeLog.md
+author: Emil Dragańczuk
+github: Dragemil/haskell-companion
+license: BSD3
 executables:
   haskell-companion-exe:
-    main:                Main.hs
-    source-dirs:         app
+    source-dirs: app
+    main: Main.hs
     ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
     - haskell-companion
-
-tests:
-  haskell-companion-test:
-    main:                Spec.hs
-    source-dirs:         test
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - haskell-companion
+description: Please see the README on GitHub at <https://github.com/Dragemil/haskell-companion#readme>

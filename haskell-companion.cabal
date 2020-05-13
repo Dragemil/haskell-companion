@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 223dab6632b8a9a4ad97d8cef75bc8cb63f294762f599ff54df7a75d307f3364
+-- hash: d0373c47e777ddef03aa78f42ae3dc98977f77a1c8d782bdd79e64f197894eee
 
 name:           haskell-companion
 version:        0.1.0.0
@@ -27,7 +27,7 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      StartUp
   other-modules:
       Paths_haskell_companion
   hs-source-dirs:
@@ -39,6 +39,7 @@ library
     , hoogle
     , http-conduit
     , scheduler
+    , text
   default-language: Haskell2010
 
 executable haskell-companion-exe
@@ -56,6 +57,7 @@ executable haskell-companion-exe
     , hoogle
     , http-conduit
     , scheduler
+    , text
   default-language: Haskell2010
 
 test-suite haskell-companion-test
@@ -74,4 +76,5 @@ test-suite haskell-companion-test
     , hoogle
     , http-conduit
     , scheduler
+    , text
   default-language: Haskell2010
