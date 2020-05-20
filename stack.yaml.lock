@@ -46,6 +46,13 @@ packages:
       sha256: c28fe0f7d5093a18895ff3d80569ff01cb95f0dab57220e23908d61e3ec09fe7
   original:
     hackage: scheduler-1.4.2.2
+- completed:
+    hackage: xml-conduit-1.9.0.0@sha256:1392e30a48e330fffff328fa846fd302c549ab624366593c26a6873a748e5fa1,2712
+    pantry-tree:
+      size: 808
+      sha256: 2c29a33c29af976d443f5226f3e9636878679da56406d747a75f1f859db6731e
+  original:
+    hackage: xml-conduit-1.9.0.0
 snapshots:
 - completed:
     size: 494635
