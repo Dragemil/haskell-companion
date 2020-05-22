@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d0373c47e777ddef03aa78f42ae3dc98977f77a1c8d782bdd79e64f197894eee
+-- hash: a70495f67b16dd9b1f1cd43fbb5da7c5f0869731d5f5609ae69ba7e1f93bdde7
 
 name:           haskell-companion
 version:        0.1.0.0
@@ -27,6 +27,8 @@ source-repository head
 
 library
   exposed-modules:
+      Discord.Events
+      Hoogle.Searching
       StartUp
   other-modules:
       Paths_haskell_companion
@@ -34,6 +36,7 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , deepseq
     , discord-haskell
     , feed
     , hoogle

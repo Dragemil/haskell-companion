@@ -46,6 +46,13 @@ packages:
       sha256: c28fe0f7d5093a18895ff3d80569ff01cb95f0dab57220e23908d61e3ec09fe7
   original:
     hackage: scheduler-1.4.2.2
+- completed:
+    hackage: deepseq-1.4.4.0@sha256:76902b99ee97fc059311ddb0df9488c54969adf0a212efa39705981761f06b55,2918
+    pantry-tree:
+      size: 385
+      sha256: edf7ecb1e7195bf2c1b595f462343b8a237351acf73e4d0e66e005fc5baa62f4
+  original:
+    hackage: deepseq-1.4.4.0
 snapshots:
 - completed:
     size: 494635
