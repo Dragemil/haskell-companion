@@ -4,5 +4,5 @@
 
 Once you have `hoogle cli` just simply run
 ``` bash
-hoogle generate --database/hoogle-db.hoo --download
+hoogle generate --database=resources/hoogle-db.hoo --download
 ```
