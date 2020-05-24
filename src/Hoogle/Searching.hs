@@ -6,9 +6,12 @@ module Hoogle.Searching
 where
 
 import           Control.DeepSeq                ( NFData )
+
 import qualified Data.Text                     as T
+
 import           Discord
 import           Discord.Types
+
 import           Hoogle
 
 dbPath :: FilePath

@@ -29,6 +29,7 @@ library
   exposed-modules:
       Discord.Events
       Hoogle.Searching
+      Posts.Atom
       StartUp
   other-modules:
       Paths_haskell_companion
@@ -42,8 +43,12 @@ library
     , feed
     , hoogle
     , http-conduit
+    , mtl
+    , random
     , scheduler
     , text
+    , transformers
+    , xml-conduit
   default-language: Haskell2010
 
 executable haskell-companion-exe

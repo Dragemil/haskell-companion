@@ -19,14 +19,18 @@ import qualified Discord.Requests              as R
 
 import           Hoogle.Searching
 
+import           Posts.Atom
+
 -- If an event handler throws an exception, discord-haskell will continue to run
 eventHandler :: DiscordHandle -> Event -> IO ()
 eventHandler dis (MessageCreate m)
     | fromBot m = pure ()
-    | isCheck m = do
+    | startWithPrefix checkPrefix m = do
         embed <- createSearchedEmbed $ getPattern m
-        restCall dis (R.CreateMessageEmbed (messageChannel m) "" embed)
-        pure ()
+        void $ restCall dis (R.CreateMessageEmbed (messageChannel m) "" embed)
+    | startWithPrefix amuseMePrefix m = do
+        embed <- getRandomPostEmbed
+        void $ restCall dis (R.CreateMessageEmbed (messageChannel m) "" embed)
     | toBot m = do
         restCall dis (R.CreateReaction (messageChannel m, messageId m) "wave")
         threadDelay (1 * 10 ^ 6)
@@ -44,11 +48,14 @@ fromBot m = userIsBot (messageAuthor m)
 toBot :: Message -> Bool
 toBot = ("bot" `T.isInfixOf`) . T.map toLower . messageText
 
-searchPrefix :: IsString a => a
-searchPrefix = "!check "
+checkPrefix :: IsString a => a
+checkPrefix = "!check "
+
+amuseMePrefix :: IsString a => a
+amuseMePrefix = "!amuseme"
 
 getPattern :: Message -> String
-getPattern = T.unpack . T.drop (T.length searchPrefix) . messageText
+getPattern = T.unpack . T.drop (T.length checkPrefix) . messageText
 
-isCheck :: Message -> Bool
-isCheck = (searchPrefix `T.isPrefixOf`) . T.map toLower . messageText
+startWithPrefix :: T.Text -> Message -> Bool
+startWithPrefix pref = (pref `T.isPrefixOf`) . T.map toLower . messageText
