@@ -27,10 +27,12 @@ eventHandler dis (MessageCreate m)
     | fromBot m = pure ()
     | startWithPrefix checkPrefix m = do
         embed <- createSearchedEmbed $ getPattern m
-        void $ restCall dis (R.CreateMessageEmbed (messageChannel m) "" embed)
+        void $ restCall dis $ R.CreateMessageEmbed (messageChannel m) "" embed
     | startWithPrefix amuseMePrefix m = do
         embed <- getRandomPostEmbed
-        void $ restCall dis (R.CreateMessageEmbed (messageChannel m) "" embed)
+        void $ restCall dis $ R.CreateMessageEmbed (messageChannel m)
+                                                   "Maybe check this out:"
+                                                   embed
     | toBot m = do
         restCall dis (R.CreateReaction (messageChannel m, messageId m) "wave")
         threadDelay (1 * 10 ^ 6)
