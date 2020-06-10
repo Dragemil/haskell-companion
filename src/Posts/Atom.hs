@@ -1,5 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_HADDOCK ignore-exports #-}
 
+{-|
+Module      : Posts.Atom
+Description : A module responsible for fetching random blog posts from
+the planet haskell.
+
+Here are the functions responsible for fetching random blog posts from
+the [planet haskell](http://planet.haskell.org/).
+-}
 module Posts.Atom
   ( getRandomPostEmbed
   )
@@ -27,12 +36,20 @@ import           System.Random                  ( randomRIO )
 
 type MaybeIO = MaybeT IO
 
+{- |
+The only exported function.
+Fetches random blog post from the [planet haskell](http://planet.haskell.org/),
+parses it from Atom, and embeds it into a Discord embedded message.
+-}
 getRandomPostEmbed :: IO CreateEmbed
 getRandomPostEmbed = fmap itemToEmbed $ runMaybeT $ do
   feed <- MaybeT (extractFeed <$> responseBody haskellPlanetAtomURL)
   randomFeedItem feed
 
-
+{- |
+Embeds given feed item into a Discord embedded message.
+Creates a sample failure message if no item was given.
+-}
 itemToEmbed :: Maybe Item -> CreateEmbed
 itemToEmbed Nothing = def
   { createEmbedAuthorName = "Haskell Companion"
@@ -50,24 +67,26 @@ itemToEmbed (Just item) = def
                                (getItemPublishDateString item)
   }
 
+-- | Returns @Just@ random feed item if there is any or @Nothing@ if there are none.
 randomFeedItem :: Feed -> MaybeIO Item
 randomFeedItem = randomElement . feedItems
 
+-- | Tries to parse a @ByteString@ into a @Feed@.
+-- Either an Atom or a RSS 2.x standard may be parsed correctly.
 extractFeed :: BS.ByteString -> Maybe Feed
 extractFeed bs = parseAtom $ TX.parseLBS TX.def bs
  where
   parseAtom (Left  _  ) = Nothing
   parseAtom (Right lbs) = readAtom . TX.toXMLElement . TX.documentRoot $ lbs
 
+-- | Sends HTTP request and returns its body.
 responseBody :: Request -> IO BS.ByteString
 responseBody req = liftIO $ getResponseBody <$> httpLBS req
 
 haskellPlanetAtomURL :: IsString a => a
 haskellPlanetAtomURL = "http://planet.haskell.org/atom.xml"
 
-liftMaybe :: (MonadPlus m) => Maybe a -> m a
-liftMaybe = maybe mzero return
-
+-- | Returns @Just@ random element from the list or @Nothing@ if the list is empty.
 randomElement :: [a] -> MaybeIO a
 randomElement [] = mzero
 randomElement l  = do

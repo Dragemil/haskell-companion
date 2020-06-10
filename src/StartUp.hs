@@ -1,7 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_HADDOCK ignore-exports #-}
 
+{-|
+Module      : StartUp
+Description : A module responsible for configuring and starting up the bot.
+
+Here are the functions responsible for configuring and starting up the bot.
+-}
 module StartUp
-  ( sayHello
+  ( runBot
   )
 where
 
@@ -18,23 +25,23 @@ import           Discord.Types
 import qualified Discord.Requests              as R
 
 -- Greets on start and when someone says "bot"
-sayHello :: IO ()
-sayHello = do
+runBot :: IO ()
+runBot = do
   tok <- token
 
-  t <- runDiscord $ def { discordToken   = tok
-                        , discordOnStart = startHandler
-                        , discordOnEnd   = putStrLn "Bye, I got to go"
-                        , discordOnEvent = eventHandler
-                        , discordOnLog = \s -> TIO.putStrLn s >> TIO.putStrLn ""
-                        }
-  threadDelay (1 `div` 10 * 10 ^ 6)
-  TIO.putStrLn t
+  void . runDiscord $ def { discordToken   = tok
+                          , discordOnStart = startHandler
+                          , discordOnEnd   = putStrLn "The bot went off"
+                          , discordOnEvent = eventHandler
+                          , discordOnLog   = \s -> TIO.putStrLn s
+                          }
 
+-- | Token for authentication is read from a file which is ignored by git.
 token :: IO T.Text
 token = TIO.readFile "./secrets/bot-auth-token"
 
--- If the start handler throws an exception, discord-haskell will gracefully shutdown
+-- | Makes the bot say hello on every text channel there is on a server.
+-- If the start handler throws an exception, discord-haskell will gracefully shutdown.
 startHandler :: DiscordHandle -> IO ()
 startHandler dis = do
   Right partialGuilds <- restCall dis R.GetCurrentUserGuilds
@@ -45,10 +52,10 @@ startHandler dis = do
     case filter isTextChannel chans of
       (c : _) -> void $ restCall dis $ R.CreateMessage
         (channelId c)
-        "Hello! At your service"
+        "Hello! At your service."
       _ -> pure ()
 
+-- | Checks whether Discord channel is a text channel.
 isTextChannel :: Channel -> Bool
 isTextChannel ChannelText{} = True
 isTextChannel _             = False
-

@@ -1,5 +1,21 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_HADDOCK ignore-exports #-}
 
+{-|
+Module      : Discord.Events
+Description : A module handling events for the Discord bot.
+
+Every user input in the Discord server is parsed in this module
+and if a command is recognized an appropriate response is prepared.
+Known commands are:
+
+     * /!check \<pattern\>/ - for checking /\<pattern\>/ in the local Hoogle
+     documentation database,
+     * /!amuseme/ - for fetching random blog post from the [planet haskell](http://planet.haskell.org/),
+     * A message containing /bot/ which is considered as a greeting to the bot.
+     Bot tries to be polite and greets back, while giving :wave: reaction under
+     the users greeting.
+-}
 module Discord.Events
     ( eventHandler
     )
@@ -21,14 +37,20 @@ import           Hoogle.Searching
 
 import           Posts.Atom
 
--- If an event handler throws an exception, discord-haskell will continue to run
+{- |
+The only exported function.
+Based on Discord server event, a proper response is prepared.
+The message is parsed, and if it is from bot or no command is recognized, our bot
+will remain silent.
+If an event handler throws an exception, discord-haskell will continue to run.
+-}
 eventHandler :: DiscordHandle -> Event -> IO ()
 eventHandler dis (MessageCreate m)
     | fromBot m = pure ()
-    | startWithPrefix checkPrefix m = do
+    | startsWithPrefix checkPrefix m = do
         embed <- createSearchedEmbed $ getPattern m
         void $ restCall dis $ R.CreateMessageEmbed (messageChannel m) "" embed
-    | startWithPrefix amuseMePrefix m = do
+    | startsWithPrefix amuseMePrefix m = do
         embed <- getRandomPostEmbed
         void $ restCall dis $ R.CreateMessageEmbed (messageChannel m)
                                                    "Maybe check this out:"
@@ -41,23 +63,30 @@ eventHandler dis (MessageCreate m)
     | otherwise = pure ()
 eventHandler _ _ = pure ()
 
+-- | Prepares a personal greeting.
 greeting :: Message -> T.Text
 greeting m = "Hi " `T.append` userName (messageAuthor m) `T.append` "!"
 
+-- | Checks whether the message comes from another bot.
 fromBot :: Message -> Bool
 fromBot m = userIsBot (messageAuthor m)
 
+-- | Checks whether the message contains phrase /bot/.
 toBot :: Message -> Bool
 toBot = ("bot" `T.isInfixOf`) . T.map toLower . messageText
 
+-- | A prefix for the docs command.
 checkPrefix :: IsString a => a
 checkPrefix = "!check "
 
+-- | A prefix for the random post command.
 amuseMePrefix :: IsString a => a
 amuseMePrefix = "!amuseme"
 
+-- | Extracts search pattern for the docs command.
 getPattern :: Message -> String
 getPattern = T.unpack . T.drop (T.length checkPrefix) . messageText
 
-startWithPrefix :: T.Text -> Message -> Bool
-startWithPrefix pref = (pref `T.isPrefixOf`) . T.map toLower . messageText
+-- | Checks whether message starts with given prefix.
+startsWithPrefix :: T.Text -> Message -> Bool
+startsWithPrefix pref = (pref `T.isPrefixOf`) . T.map toLower . messageText

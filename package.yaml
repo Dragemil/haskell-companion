@@ -5,26 +5,27 @@ tests:
     source-dirs: test
     main: Spec.hs
     ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
-    - haskell-companion
+      - haskell-companion
 copyright: 2020 Emil Dragańczuk
 maintainer: dragemil@wp.pl
 dependencies:
-- text
-- base >= 4.7 && < 5
-- discord-haskell
-- hoogle
-- feed
-- http-conduit
-- scheduler
+  - text
+  - base >= 4.7 && < 5
+  - discord-haskell
+  - haddock
+  - hoogle
+  - feed
+  - http-conduit
+  - scheduler
 name: haskell-companion
 version: 0.1.0.0
 extra-source-files:
-- README.md
-- ChangeLog.md
+  - README.md
+  - ChangeLog.md
 author: Emil Dragańczuk
 github: Dragemil/haskell-companion
 license: BSD3
@@ -33,9 +34,9 @@ executables:
     source-dirs: app
     main: Main.hs
     ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
-    - haskell-companion
+      - haskell-companion
 description: Please see the README on GitHub at <https://github.com/Dragemil/haskell-companion#readme>

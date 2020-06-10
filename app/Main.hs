@@ -1,6 +1,6 @@
 module Main where
 
-import StartUp
+import           StartUp
 
 main :: IO ()
-main = sayHello
+main = runBot
