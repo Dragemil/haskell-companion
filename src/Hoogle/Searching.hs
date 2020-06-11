@@ -3,8 +3,7 @@
 
 {-|
 Module      : Hoogle.Searching
-Description : A module responsible for searching
-              within local Hoogle database.
+Description : Searching within local Hoogle database.
 
 Here are the functions responsible for forwarding given search pattern
 to the local Hoogle database and then wrapping it in the Discord bot

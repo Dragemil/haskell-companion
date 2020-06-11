@@ -3,8 +3,7 @@
 
 {-|
 Module      : Posts.Atom
-Description : A module responsible for fetching random blog posts from
-the planet haskell.
+Description : Fetching random blog posts from the planet haskell.
 
 Here are the functions responsible for fetching random blog posts from
 the [planet haskell](http://planet.haskell.org/).

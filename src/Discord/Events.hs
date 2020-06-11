@@ -3,7 +3,7 @@
 
 {-|
 Module      : Discord.Events
-Description : A module handling events for the Discord bot.
+Description : Handling events for the Discord bot.
 
 Every user input in the Discord server is parsed in this module
 and if a command is recognized an appropriate response is prepared.

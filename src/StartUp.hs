@@ -3,7 +3,7 @@
 
 {-|
 Module      : StartUp
-Description : A module responsible for configuring and starting up the bot.
+Description : Configuring and starting up the bot.
 
 Here are the functions responsible for configuring and starting up the bot.
 -}
@@ -33,7 +33,7 @@ runBot = do
                           , discordOnStart = startHandler
                           , discordOnEnd   = putStrLn "The bot went off"
                           , discordOnEvent = eventHandler
-                          , discordOnLog   = \s -> TIO.putStrLn s
+                          , discordOnLog   = TIO.putStrLn
                           }
 
 -- | Token for authentication is read from a file which is ignored by git.
