@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, TupleSections #-}
 {-# OPTIONS_HADDOCK ignore-exports #-}
 
 {-|
@@ -17,13 +17,16 @@ where
 import           Control.DeepSeq                ( NFData )
 
 import qualified Data.Text                     as T
+import           Data.String                    ( IsString
+                                                , fromString
+                                                )
 
 import           Discord
 import           Discord.Types
 
 import           Hoogle
 
--- | A path to our local Hoogle database.
+-- | A path to local Hoogle database.
 dbPath :: FilePath
 dbPath = "resources/hoogle-db.hoo"
 
@@ -32,10 +35,18 @@ dbPath = "resources/hoogle-db.hoo"
 withLocalDatabase :: NFData a => (Database -> IO a) -> IO a
 withLocalDatabase = withDatabase dbPath
 
-getFirstTarget :: Database -> String -> Maybe Target
-getFirstTarget db pattern = case searchDatabase db pattern of
-    (target : _) -> Just target
-    _            -> Nothing
+findTarget :: Database -> String -> Int -> (Maybe Target, Int)
+findTarget db pattern which = (, cnt) $ if which > cnt || which < 1
+    then Nothing
+    else Just $ targets !! (which - 1)
+  where
+    targets = searchDatabase db pattern
+    cnt     = length targets
+
+createCountMessage :: IsString a => Int -> a
+createCountMessage 0 = ""
+createCountMessage cnt =
+    fromString $ "Found " ++ show cnt ++ " results for your phrase."
 
 createEmbedTarget :: Maybe Target -> CreateEmbed
 createEmbedTarget Nothing = def
@@ -53,7 +64,8 @@ createEmbedTarget (Just target) = def
 
 -- | Based on a provided search pattern, creates
 -- a Discord embedded message with result.
-createSearchedEmbed :: String -> IO CreateEmbed
-createSearchedEmbed pattern = do
-    target <- withLocalDatabase (\db -> pure $ getFirstTarget db pattern)
-    pure $ createEmbedTarget target
+createSearchedEmbed :: IsString a => String -> Int -> IO (a, CreateEmbed)
+createSearchedEmbed pattern which = do
+    (target, cnt) <- withLocalDatabase
+        (\db -> pure $ findTarget db pattern which)
+    pure (createCountMessage cnt, createEmbedTarget target)

@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, TupleSections #-}
 {-# OPTIONS_HADDOCK ignore-exports #-}
 
 {-|
@@ -25,6 +25,7 @@ import           Control.Concurrent
 import           Control.Monad
 
 import           Data.Char                      ( toLower )
+import           Data.Maybe                     ( maybe )
 import           Data.String                    ( IsString )
 import qualified Data.Text                     as T
 import qualified Data.Text.IO                  as TIO
@@ -36,6 +37,7 @@ import qualified Discord.Requests              as R
 import           Hoogle.Searching
 
 import           Posts.Atom
+import           Text.Read                      ( readMaybe )
 
 {- |
 The only exported function.
@@ -48,8 +50,16 @@ eventHandler :: DiscordHandle -> Event -> IO ()
 eventHandler dis (MessageCreate m)
     | fromBot m = pure ()
     | startsWithPrefix checkPrefix m = do
-        embed <- createSearchedEmbed $ getPattern m
-        void $ restCall dis $ R.CreateMessageEmbed (messageChannel m) "" embed
+        request <-
+            maybe
+                    (pure $ R.CreateMessage (messageChannel m)
+                                            checkCommandReminder
+                    )
+                    (uncurry createSearchedEmbed >=> pure . uncurry
+                        (R.CreateMessageEmbed (messageChannel m))
+                    )
+                $ getPattern m
+        void $ restCall dis request
     | startsWithPrefix amuseMePrefix m = do
         embed <- getRandomPostEmbed
         void $ restCall dis $ R.CreateMessageEmbed (messageChannel m)
@@ -66,6 +76,9 @@ eventHandler _ _ = pure ()
 -- | Prepares a personal greeting.
 greeting :: Message -> T.Text
 greeting m = "Hi " `T.append` userName (messageAuthor m) `T.append` "!"
+
+checkCommandReminder :: IsString a => a
+checkCommandReminder = "The command is _!check <number> <pattern>_"
 
 -- | Checks whether the message comes from another bot.
 fromBot :: Message -> Bool
@@ -84,8 +97,17 @@ amuseMePrefix :: IsString a => a
 amuseMePrefix = "!amuseme"
 
 -- | Extracts search pattern for the docs command.
-getPattern :: Message -> String
-getPattern = T.unpack . T.drop (T.length checkPrefix) . messageText
+getPattern :: Message -> Maybe (String, Int)
+getPattern message = (pat, ) <$> which
+  where
+    pat =
+        dropWhile (== ' ')
+            . dropWhile (/= ' ')
+            . dropWhile (== ' ')
+            $ withoutPrefix
+    which = readMaybe . takeWhile (/= ' ') . dropWhile (== ' ') $ withoutPrefix
+    withoutPrefix =
+        drop (length (checkPrefix :: String)) . T.unpack . messageText $ message
 
 -- | Checks whether message starts with given prefix.
 startsWithPrefix :: T.Text -> Message -> Bool
