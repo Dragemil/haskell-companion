@@ -51,16 +51,17 @@ createCountMessage cnt which
     | otherwise
     = fromString $ "Please provide number from 0 to " ++ show cnt ++ "."
 
+embedFromHoogle :: CreateEmbed
+embedFromHoogle = def { createEmbedAuthorName = "Hoogle"
+                      , createEmbedAuthorUrl  = "https://hoogle.haskell.org/"
+                      }
+
 createEmbedTargetsTitles :: [Target] -> CreateEmbed
-createEmbedTargetsTitles [] = def
-    { createEmbedAuthorName = "Hoogle"
-    , createEmbedAuthorUrl = "https://hoogle.haskell.org/"
-    , createEmbedTitle = "Sorry, couldn't find anything matching your phrase."
+createEmbedTargetsTitles [] = embedFromHoogle
+    { createEmbedTitle = "Sorry, couldn't find anything matching your phrase."
     }
-createEmbedTargetsTitles targets = def
-    { createEmbedAuthorName  = "Hoogle"
-    , createEmbedAuthorUrl   = "https://hoogle.haskell.org/"
-    , createEmbedTitle       = "Some best matches:"
+createEmbedTargetsTitles targets = embedFromHoogle
+    { createEmbedTitle       = "Some best matches:"
     , createEmbedDescription = T.pack $ displayTitles
     }
   where
@@ -70,15 +71,11 @@ createEmbedTargetsTitles targets = def
             targets
 
 createEmbedTarget :: Maybe Target -> CreateEmbed
-createEmbedTarget Nothing = def
-    { createEmbedAuthorName = "Hoogle"
-    , createEmbedAuthorUrl = "https://hoogle.haskell.org/"
-    , createEmbedTitle = "Sorry, couldn't find anything matching your phrase."
+createEmbedTarget Nothing = embedFromHoogle
+    { createEmbedTitle = "Sorry, couldn't find anything matching your phrase."
     }
-createEmbedTarget (Just target) = def
-    { createEmbedAuthorName  = "Hoogle"
-    , createEmbedAuthorUrl   = "https://hoogle.haskell.org/"
-    , createEmbedTitle       = T.pack $ targetResultDisplay False target
+createEmbedTarget (Just target) = embedFromHoogle
+    { createEmbedTitle       = T.pack $ targetResultDisplay False target
     , createEmbedUrl         = T.pack $ targetURL target
     , createEmbedDescription = T.pack $ targetInfo target
     }
