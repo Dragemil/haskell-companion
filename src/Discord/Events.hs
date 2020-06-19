@@ -49,6 +49,12 @@ If an event handler throws an exception, discord-haskell will continue to run.
 eventHandler :: DiscordHandle -> Event -> IO ()
 eventHandler dis (MessageCreate m)
     | fromBot m = pure ()
+    | startsWithPrefix helpPrefix m = do
+        restCall
+            dis
+            (R.CreateReaction (messageChannel m, messageId m) "ok_hand")
+        restCall dis (R.CreateMessage (messageChannel m) helpMessage)
+        pure ()
     | startsWithPrefix checkPrefix m = do
         request <-
             maybe
@@ -67,7 +73,6 @@ eventHandler dis (MessageCreate m)
                                                    embed
     | toBot m = do
         restCall dis (R.CreateReaction (messageChannel m, messageId m) "wave")
-        threadDelay (1 * 10 ^ 6)
         restCall dis (R.CreateMessage (messageChannel m) (greeting m))
         pure ()
     | otherwise = pure ()
@@ -80,6 +85,18 @@ greeting m = "Hi " `T.append` userName (messageAuthor m) `T.append` "!"
 checkCommandReminder :: IsString a => a
 checkCommandReminder = "The command is _!check <number> <pattern>_"
 
+helpMessage :: IsString a => a
+helpMessage =
+    "\
+\ Here are all my commands, through which I can help you:\n\
+\ _!help_ - I'll show you this message,\n\
+\ _!amuseme_ - I'll bring you one random\
+\ http://planet.haskell.org/ post,\n\
+\ _!check <number> <pattern>_ - I'll find you the Hoogle docs matching\
+\ _<pattern>_. If the _<number>_ is 0 I'll show you brief info about what I've\
+\ found, otherwise you'll get the details about the result.\n\
+\"
+
 -- | Checks whether the message comes from another bot.
 fromBot :: Message -> Bool
 fromBot m = userIsBot (messageAuthor m)
@@ -87,6 +104,10 @@ fromBot m = userIsBot (messageAuthor m)
 -- | Checks whether the message contains phrase /bot/.
 toBot :: Message -> Bool
 toBot = ("bot" `T.isInfixOf`) . T.map toLower . messageText
+
+-- | A prefix for the docs command.
+helpPrefix :: IsString a => a
+helpPrefix = "!help"
 
 -- | A prefix for the docs command.
 checkPrefix :: IsString a => a
