@@ -43,10 +43,31 @@ findTarget db pattern which = (, cnt) $ if which > cnt || which < 1
     targets = searchDatabase db pattern
     cnt     = length targets
 
-createCountMessage :: IsString a => Int -> a
-createCountMessage 0 = ""
-createCountMessage cnt =
-    fromString $ "Found " ++ show cnt ++ " results for your phrase."
+createCountMessage :: IsString a => Int -> Int -> a
+createCountMessage 0 _ = ""
+createCountMessage cnt which
+    | which >= 0 || which <= cnt
+    = fromString $ "Found " ++ show cnt ++ " results for your phrase."
+    | otherwise
+    = fromString $ "Please provide number from 0 to " ++ show cnt ++ "."
+
+createEmbedTargetsTitles :: [Target] -> CreateEmbed
+createEmbedTargetsTitles [] = def
+    { createEmbedAuthorName = "Hoogle"
+    , createEmbedAuthorUrl = "https://hoogle.haskell.org/"
+    , createEmbedTitle = "Sorry, couldn't find anything matching your phrase."
+    }
+createEmbedTargetsTitles targets = def
+    { createEmbedAuthorName  = "Hoogle"
+    , createEmbedAuthorUrl   = "https://hoogle.haskell.org/"
+    , createEmbedTitle       = "Some best matches:"
+    , createEmbedDescription = T.pack $ displayTitles
+    }
+  where
+    displayTitles =
+        concat $ zipWith (\num tar -> show num ++ ". " ++ tar) [1 ..] $ map
+            ((++ "\n") . targetResultDisplay False)
+            targets
 
 createEmbedTarget :: Maybe Target -> CreateEmbed
 createEmbedTarget Nothing = def
@@ -65,7 +86,13 @@ createEmbedTarget (Just target) = def
 -- | Based on a provided search pattern, creates
 -- a Discord embedded message with result.
 createSearchedEmbed :: IsString a => String -> Int -> IO (a, CreateEmbed)
+createSearchedEmbed pattern 0 = do
+    targets <- withLocalDatabase $ pure . (flip searchDatabase) pattern
+    pure
+        ( createCountMessage (length targets) 0
+        , createEmbedTargetsTitles $ take 10 targets
+        )
 createSearchedEmbed pattern which = do
     (target, cnt) <- withLocalDatabase
         (\db -> pure $ findTarget db pattern which)
-    pure (createCountMessage cnt, createEmbedTarget target)
+    pure (createCountMessage cnt which, createEmbedTarget target)
