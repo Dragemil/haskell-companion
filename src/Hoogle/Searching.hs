@@ -43,18 +43,23 @@ findTarget db pattern which = (, cnt) $ if which > cnt || which < 1
     targets = searchDatabase db pattern
     cnt     = length targets
 
-createCountMessage :: IsString a => Int -> Int -> a
-createCountMessage 0 _ = ""
-createCountMessage cnt which
-    | which >= 0 || which <= cnt
-    = fromString $ "Found " ++ show cnt ++ " results for your phrase."
-    | otherwise
-    = fromString $ "Please provide number from 0 to " ++ show cnt ++ "."
+createCountMessage :: IsString a => Int -> a
+createCountMessage 0 = ""
+createCountMessage cnt =
+    fromString $ "Found " ++ show cnt ++ " results for your phrase."
 
 embedFromHoogle :: CreateEmbed
 embedFromHoogle = def { createEmbedAuthorName = "Hoogle"
                       , createEmbedAuthorUrl  = "https://hoogle.haskell.org/"
                       }
+
+createEmbedInputWarning :: Int -> CreateEmbed
+createEmbedInputWarning cnt = embedFromHoogle
+    { createEmbedTitle = T.pack
+                         $  "Please provide search number from 0 to "
+                         ++ show cnt
+                         ++ "."
+    }
 
 createEmbedTargetsTitles :: [Target] -> CreateEmbed
 createEmbedTargetsTitles [] = embedFromHoogle
@@ -86,10 +91,12 @@ createSearchedEmbed :: IsString a => String -> Int -> IO (a, CreateEmbed)
 createSearchedEmbed pattern 0 = do
     targets <- withLocalDatabase $ pure . (flip searchDatabase) pattern
     pure
-        ( createCountMessage (length targets) 0
+        ( createCountMessage $ length targets
         , createEmbedTargetsTitles $ take 10 targets
         )
 createSearchedEmbed pattern which = do
     (target, cnt) <- withLocalDatabase
         (\db -> pure $ findTarget db pattern which)
-    pure (createCountMessage cnt which, createEmbedTarget target)
+    pure $ (createCountMessage cnt, ) $ if which >= 0 && which <= cnt
+        then createEmbedTarget target
+        else createEmbedInputWarning cnt
