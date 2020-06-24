@@ -24,7 +24,11 @@ import           Discord.Events
 import           Discord.Types
 import qualified Discord.Requests              as R
 
--- Greets on start and when someone says "bot"
+{- |
+The only exported function.
+It starts up the bot and authorizes him via token.
+All exception logs are printed on standard output.
+-}
 runBot :: IO ()
 runBot = do
   tok <- token

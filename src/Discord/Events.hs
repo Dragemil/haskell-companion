@@ -9,8 +9,10 @@ Every user input in the Discord server is parsed in this module
 and if a command is recognized an appropriate response is prepared.
 Known commands are:
 
-     * /!check \<pattern\>/ - for checking /\<pattern\>/ in the local Hoogle
-     documentation database,
+     * /!help/ - for information about the bots commands,
+     * /!check \<number\> \<pattern\>/ - for checking /\<pattern\>/ in the local Hoogle
+     documentation database, the \<number\> result is presented or first 10 if
+     the \<number\> is 0,
      * /!amuseme/ - for fetching random blog post from the [planet haskell](http://planet.haskell.org/),
      * A message containing /bot/ which is considered as a greeting to the bot.
      Bot tries to be polite and greets back, while giving :wave: reaction under
@@ -42,7 +44,7 @@ import           Text.Read                      ( readMaybe )
 {- |
 The only exported function.
 Based on Discord server event, a proper response is prepared.
-The message is parsed, and if it is from bot or no command is recognized, our bot
+The message is parsed, and if it is from a bot or no command is recognized, our bot
 will remain silent.
 If an event handler throws an exception, discord-haskell will continue to run.
 -}
@@ -82,9 +84,11 @@ eventHandler _ _ = pure ()
 greeting :: Message -> T.Text
 greeting m = "Hi " `T.append` userName (messageAuthor m) `T.append` "!"
 
+-- | A message reminding of the structure of the docs command.
 checkCommandReminder :: IsString a => a
 checkCommandReminder = "The command is _!check <number> <pattern>_"
 
+-- | A message to display on help command.
 helpMessage :: IsString a => a
 helpMessage =
     "\
@@ -105,7 +109,7 @@ fromBot m = userIsBot (messageAuthor m)
 toBot :: Message -> Bool
 toBot = ("bot" `T.isInfixOf`) . T.map toLower . messageText
 
--- | A prefix for the docs command.
+-- | A prefix for the help command.
 helpPrefix :: IsString a => a
 helpPrefix = "!help"
 
@@ -117,7 +121,7 @@ checkPrefix = "!check "
 amuseMePrefix :: IsString a => a
 amuseMePrefix = "!amuseme"
 
--- | Extracts search pattern for the docs command.
+-- | Extracts search pattern and the number for the docs command.
 getPattern :: Message -> Maybe (String, Int)
 getPattern message = (pat, ) <$> which
   where
@@ -130,6 +134,6 @@ getPattern message = (pat, ) <$> which
     withoutPrefix =
         drop (length (checkPrefix :: String)) . T.unpack . messageText $ message
 
--- | Checks whether message starts with given prefix.
+-- | Checks whether the message starts with given prefix.
 startsWithPrefix :: T.Text -> Message -> Bool
 startsWithPrefix pref = (pref `T.isPrefixOf`) . T.map toLower . messageText

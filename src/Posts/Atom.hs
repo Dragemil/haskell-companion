@@ -73,10 +73,7 @@ randomFeedItem = randomElement . feedItems
 -- | Tries to parse a @ByteString@ into a @Feed@.
 -- Either an Atom or a RSS 2.x standard may be parsed correctly.
 extractFeed :: BS.ByteString -> Maybe Feed
-extractFeed bs = parseAtom $ TX.parseLBS TX.def bs
- where
-  parseAtom (Left  _  ) = Nothing
-  parseAtom (Right lbs) = readAtom . TX.toXMLElement . TX.documentRoot $ lbs
+extractFeed = parseFeedSource
 
 -- | Sends HTTP request and returns its body.
 responseBody :: Request -> IO BS.ByteString
